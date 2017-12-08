@@ -9,6 +9,12 @@ import (
 	"strings"
 )
 
+type PossibleIPStruct struct {
+	NetworkAddress   [4]uint8
+	BroadcastAddress [4]uint8
+	NumberOfHost     uint64
+}
+
 type ResponsePayload struct {
 	Status           string
 	IP               [4]uint8
@@ -16,6 +22,7 @@ type ResponsePayload struct {
 	NetworkAddress   [4]uint8
 	BroadcastAddress [4]uint8
 	NumberOfHost     uint64
+	Possible         []PossibleIPStruct
 }
 
 func homePage(w http.ResponseWriter, r *http.Request) {
@@ -69,6 +76,43 @@ func numberOfHostCalculate(subnet [4]uint8) (number uint64) {
 	return
 }
 
+func calc(ip [4]uint8, subnet [4]uint8) (network, broadcast [4]uint8, numberOfHost uint64) {
+	network = networkAddress(ip, subnet)
+	broadcast = broadcastAddress(ip, subnet)
+	numberOfHost = numberOfHostCalculate(subnet)
+	return
+}
+
+func possibleRange(ip [4]uint8, subnet [4]uint8) (everyRange []PossibleIPStruct) {
+	var addr uint8
+	var inc uint16
+	possibleIP := ip
+	isAddrFound := false
+	for i, v := range subnet {
+		if isAddrFound {
+			possibleIP[i] = 0
+		} else {
+			bwSubnet := ^v
+			if bwSubnet != 0 {
+				addr = uint8(i)
+				inc = uint16(bwSubnet) + 1
+				isAddrFound = true
+				possibleIP[i] = 0
+			}
+		}
+	}
+	numberOfPossible := 256 / uint16(inc)
+	for i := uint16(0); i < numberOfPossible; i++ {
+		possibleNetwork, possibleBroadcast, possibleNumberOfHost := calc(possibleIP, subnet)
+		possibleIP[addr] += uint8(inc)
+		everyRange = append(everyRange, PossibleIPStruct{
+			NetworkAddress:   possibleNetwork,
+			BroadcastAddress: possibleBroadcast,
+			NumberOfHost:     possibleNumberOfHost})
+	}
+	return
+}
+
 func root(w http.ResponseWriter, r *http.Request) {
 	ipString := r.PostFormValue("ip")
 	subnetString := r.PostFormValue("subnet")
@@ -78,6 +122,7 @@ func root(w http.ResponseWriter, r *http.Request) {
 	networkAddressArray := networkAddress(ipArray, subnetArray)
 	broadcastAddressArray := broadcastAddress(ipArray, subnetArray)
 	numberOfHost := numberOfHostCalculate(subnetArray)
+	possible := possibleRange(ipArray, subnetArray)
 
 	var res ResponsePayload
 	res.Status = "OK"
@@ -86,6 +131,7 @@ func root(w http.ResponseWriter, r *http.Request) {
 	res.NetworkAddress = networkAddressArray
 	res.BroadcastAddress = broadcastAddressArray
 	res.NumberOfHost = numberOfHost
+	res.Possible = possible
 	jsonRes, _ := json.Marshal(res)
 	w.Header().Set("Content-Type", "application/json")
 	fmt.Fprintf(w, string(jsonRes))
