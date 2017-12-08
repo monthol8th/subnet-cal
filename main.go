@@ -10,8 +10,10 @@ import (
 )
 
 type ResponsePayload struct {
-	Status string
-	Ip     [4]uint8
+	Status         string
+	IP             [4]uint8
+	Subnet         [4]uint8
+	NetworkAddress [4]uint8
 }
 
 func homePage(w http.ResponseWriter, r *http.Request) {
@@ -33,13 +35,26 @@ func ipStringToUint(ipString string) (ip [4]uint8) {
 	return
 }
 
+func networkAddress(ip [4]uint8, subnet [4]uint8) (addr [4]uint8) {
+	for i := range ip {
+		addr[i] = ip[i] & subnet[i]
+	}
+	return
+}
+
 func root(w http.ResponseWriter, r *http.Request) {
 	ipString := r.PostFormValue("ip")
+	subnetString := r.PostFormValue("subnet")
+
 	ipArray := ipStringToUint(ipString)
+	subnetArray := ipStringToUint(subnetString)
+	networkAddressArray := networkAddress(ipArray, subnetArray)
 
 	var res ResponsePayload
 	res.Status = "OK"
-	res.Ip = ipArray
+	res.IP = ipArray
+	res.Subnet = subnetArray
+	res.NetworkAddress = networkAddressArray
 	jsonRes, _ := json.Marshal(res)
 	w.Header().Set("Content-Type", "application/json")
 	fmt.Fprintf(w, string(jsonRes))
