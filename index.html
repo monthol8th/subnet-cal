@@ -8,22 +8,23 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <script src="https://code.jquery.com/jquery-3.2.1.min.js" integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4=" crossorigin="anonymous"></script>
   <link rel="stylesheet" href="https://cdn.rawgit.com/yegor256/tacit/gh-pages/tacit-css-1.2.3.min.css" />
+  <link rel="stylesheet" href="style.css">
+</head>
 
-
-  <body>
-    <h1>Subnet Cal</h1>
-    <br>
-    <article>
-      <form id="formid" action="http://ec2-13-229-184-74.ap-southeast-1.compute.amazonaws.com:8081" method="post">
-        <table>
-          <tr>
-            <td>
-              <label>IP address</label></br>
-              <input type="text" id="ip" name="ip" required pattern="((^|\.)((25[0-5])|(2[0-4]\d)|(1\d\d)|([1-9]?\d))){4}$">
-            </td>
-            <td>
-              <label>Subnet</label></br>
-              <select id="subnet" name="subnet">
+<body style="">
+  <h1>Subnet Cal</h1>
+  <br>
+  <article>
+    <form id="formid" action="http://ec2-13-229-184-74.ap-southeast-1.compute.amazonaws.com:8081" method="post">
+      <table>
+        <tr>
+          <td>
+            <label>IP address</label></br>
+            <input type="text" id="ip" name="ip" required pattern="((^|\.)((25[0-5])|(2[0-4]\d)|(1\d\d)|([1-9]?\d))){4}$">
+          </td>
+          <td>
+            <label>Subnet</label></br>
+            <select id="subnet" name="subnet">
                 <option value="255.255.255.254/31">255.255.255.254/31</option>
                 <option value="255.255.255.252/30">255.255.255.252/30</option>
                 <option value="255.255.255.248/29">255.255.255.248/29</option>
@@ -56,30 +57,37 @@
                 <option value="192.0.0.0/2">192.0.0.0/2</option>
                 <option value="128.0.0.0/1">128.0.0.0/1</option>
               </select>
-            </td>
-          </tr>
-        </table>
-        <input type="submit" id="submitButton" name="submitButton" value="Submit">
-      </form>
-    </article>
-    <br>
-    <article class="hd" hidden>
-      <h3>Result</h3>
-      <center>
-        <table id="result">
-          <tr><th>Data Type</th><th>Value</th></tr>
-        </table>
-      </center>
-    </article>
-    <br>
-    <article class="hd" hidden>
-    <h3>  All Possible Networks </h3>
-      <table id="possible">
-        <tr><th>Network Address</th><th>Usable Host Range</th><th>Broadcast Address</th></tr>
+          </td>
+        </tr>
       </table>
-    </article>
+      <input type="submit" id="submitButton" name="submitButton" value="Submit">
+    </form>
+  </article>
+  <br>
+  <article class="hd" hidden>
+    <h3>Result</h3>
+    <center>
+      <table id="result">
+        <tr>
+          <th>Data Type</th>
+          <th>Value</th>
+        </tr>
+      </table>
+    </center>
+  </article>
+  <br>
+  <article class="hd" hidden>
+    <h3>  All Possible Networks </h3>
+    <table id="possible">
+      <tr>
+        <th>Network Address</th>
+        <th>Usable Host Range</th>
+        <th>Broadcast Address</th>
+      </tr>
+    </table>
+  </article>
 
-    <script type='text/javascript' src="script.js"></script>
-  </body>
+  <script type='text/javascript' src="script.js"></script>
+</body>
 
 </html>

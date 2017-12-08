@@ -1,3 +1,8 @@
+(function(){
+  var luckynumber = Math.floor(Math.random() * 8)+1;
+  $('body').css("background-image","url(media/mm"+luckynumber+".jpg)")
+})();
+
 $.get("http://ipinfo.io", function(response) {
     $('#ip').val(response.ip);
 }, "jsonp");
