@@ -20,10 +20,14 @@ type ResponsePayload struct {
 	Status           string
 	IP               string
 	Subnet           string
+	BSubnet          string
 	NetworkAddress   string
 	BroadcastAddress string
 	NumberOfHost     uint64
 	Usable           string
+	BinID            string
+	IntID            uint64
+	HexID            string
 	Possible         []PossibleIPStruct
 }
 
@@ -135,6 +139,33 @@ func possibleRange(ip [4]uint8, subnet [4]uint8, numberOfHost uint64) (everyRang
 	return
 }
 
+func bit8(x string) string {
+	l := 8 - len(x)
+	var b bytes.Buffer
+	b.WriteString(strings.Repeat("0", l))
+	b.WriteString(x)
+	return b.String()
+}
+
+func ipToBinary(ip [4]uint8) string {
+	var b bytes.Buffer
+	for i, v := range ip {
+		bit8ip := bit8(strconv.FormatInt(int64(v), 2))
+		if i > 0 {
+			b.WriteString(".")
+			b.WriteString(bit8ip)
+		}
+	}
+	return b.String()
+}
+
+func toBinary(ip [4]uint8) string {
+	var b bytes.Buffer
+	for _, v := range ip {
+		b.WriteString(bit8(strconv.FormatInt(int64(v), 2)))
+	}
+	return b.String()
+}
 func root(w http.ResponseWriter, r *http.Request) {
 	ipString := r.PostFormValue("ip")
 	subnetString := r.PostFormValue("subnet")
@@ -152,6 +183,10 @@ func root(w http.ResponseWriter, r *http.Request) {
 	res.NetworkAddress = ipArrayToString(networkAddressArray)
 	res.BroadcastAddress = ipArrayToString(broadcastAddressArray)
 	res.NumberOfHost = numberOfHost
+	res.BSubnet = ipToBinary(subnetArray)
+	res.BinID = toBinary(ipArray)
+	res.IntID, _ = strconv.ParseUint(res.BinID, 2, 64)
+	res.HexID = strconv.FormatUint(res.IntID, 16)
 	if res.Usable = "none"; numberOfHost-2 > 0 {
 		res.Usable = firstlastHost(networkAddressArray, broadcastAddressArray)
 	}
