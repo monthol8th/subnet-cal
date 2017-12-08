@@ -24,19 +24,22 @@ func homePage(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprintf(w, string(b))
 }
 
-func root(w http.ResponseWriter, r *http.Request) {
-	var ip [4]uint8
-	ipString := r.PostFormValue("ip")
+func ipStringToUint(ipString string) (ip [4]uint8) {
 	splitedIPString := strings.Split(ipString, ".")
 	for i, v := range splitedIPString {
 		temp, _ := strconv.ParseInt(v, 10, 64)
 		ip[i] = uint8(temp)
 	}
+	return
+}
+
+func root(w http.ResponseWriter, r *http.Request) {
+	ipString := r.PostFormValue("ip")
+	ipArray := ipStringToUint(ipString)
 
 	var res ResponsePayload
 	res.Status = "OK"
-	res.Ip = ip
-	fmt.Println(ip)
+	res.Ip = ipArray
 	jsonRes, _ := json.Marshal(res)
 	w.Header().Set("Content-Type", "application/json")
 	fmt.Fprintf(w, string(jsonRes))
