@@ -1,7 +1,9 @@
-(function(){
+function randombg(){
   var luckynumber = Math.floor(Math.random() * 8)+1;
   $('body').css("background-image","url(media/mm"+luckynumber+".jpg)")
-})();
+};
+
+randombg();
 
 $.get("http://ipinfo.io", function(response) {
     $('#ip').val(response.ip);
@@ -34,9 +36,10 @@ $("#formid").submit(function(event) {
 
   /* Alerts the results */
   posting.done(function(data) {
+    randombg();
     swal('Success!','The server is still up!','success');
-    $(".hd").removeAttr("hidden")
-    $('#result').html("<tr><th>Data Type</th><th>Value</th></tr>")
+    $(".hd").removeAttr("hidden");
+    $('#result').html("<tr><th>Data Type</th><th>Value</th></tr>");
     $('#result').append(" \
       <tr> \
         <td>IP Address</td> \
