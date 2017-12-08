@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <title>
+    Untitled1
+  </title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <script src="https://code.jquery.com/jquery-3.2.1.min.js" integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4=" crossorigin="anonymous"></script>
+</head>
+
+<body>
+  <div>
+    <form id="formid" class="" action="http://ec2-13-229-184-74.ap-southeast-1.compute.amazonaws.com:8081" method="post">
+      <div>
+        <label>IP address</label>
+        <input type="text" id="ip" name="ip">
+      </div>
+      <div>
+        <label>Subnet</label>
+        <input type="text" id="subnet" name="subnet">
+      </div>
+      <div>
+        <input type="submit" id="submitButton" name="submitButton" value="Submit">
+      </div>
+    </form>
+  </div>
+  <div id="data">
+  </div>
+  <script type='text/javascript'>
+    $("#formid").submit(function(event) {
+
+      event.preventDefault();
+
+      var $form = $(this),
+        url = $form.attr('action');
+
+      /* Send the data using post with element id name and name2*/
+      var posting = $.post(url, {
+        ip: $('#ip').val(),
+        subnet: $('#subnet').val()
+      });
+
+      /* Alerts the results */
+      posting.done(function(data) {
+        alert('success');
+        $("#result").html(data);
+      });
+    });
+  </script>
+</body>
+
+</html>
