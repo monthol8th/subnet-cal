@@ -26,7 +26,6 @@ $("#formid").submit(function(event) {
   /* Alerts the results */
   posting.done(function(data) {
     alert('success');
-    console.log(data);
     $('#result').html("<tr><th>Data Type</th><th>Value</th></tr>")
     $('#result').append(" \
       <tr> \
