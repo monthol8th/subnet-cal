@@ -7,11 +7,15 @@
   </title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <script src="https://code.jquery.com/jquery-3.2.1.min.js" integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4=" crossorigin="anonymous"></script>
-</head>
+  <!-- Compressed CSS -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/foundation/6.4.3/css/foundation.min.css" integrity="sha256-itWEYdFWzZPBG78bJOOiQIn06QCgN/F0wMDcC4nOhxY=" crossorigin="anonymous" />
+
+  <!-- Compressed JavaScript -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/foundation/6.4.3/js/foundation.min.js" integrity="sha256-Nd2xznOkrE9HkrAMi4xWy/hXkQraXioBg9iYsBrcFrs=" crossorigin="anonymous"></script>
 
 <body>
-  <div>
-    <form id="formid" class="" action="http://ec2-13-229-184-74.ap-southeast-1.compute.amazonaws.com:8081" method="post">
+  <div class="offset-1">
+    <form id="formid" class="form-horizontal well" action="http://ec2-13-229-184-74.ap-southeast-1.compute.amazonaws.com:8081" method="post">
       <div>
         <label>IP address</label>
         <input type="text" id="ip" name="ip">
@@ -21,12 +25,16 @@
         <input type="text" id="subnet" name="subnet">
       </div>
       <div>
-        <input type="submit" id="submitButton" name="submitButton" value="Submit">
+        <input type="submit" class="btn btn-primary" id="submitButton" name="submitButton" value="Submit">
       </div>
     </form>
   </div>
-  <div id="data">
+
+  <div id="result">
+    <table>
+    </table>
   </div>
+
   <script type='text/javascript'>
     $("#formid").submit(function(event) {
 
@@ -44,7 +52,13 @@
       /* Alerts the results */
       posting.done(function(data) {
         alert('success');
-        $("#result").html(data);
+        console.log(data);
+        $('#result').empty()
+        $('#result').append(" \
+        <tr> \
+        <td>IP Address</td> \
+        <td>"+data.IP+"</td>\
+        </tr>");
       });
     });
   </script>
