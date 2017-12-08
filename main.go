@@ -1,6 +1,7 @@
 package main
 
 import (
+	"bytes"
 	"encoding/json"
 	"fmt"
 	"log"
@@ -10,18 +11,19 @@ import (
 )
 
 type PossibleIPStruct struct {
-	NetworkAddress   [4]uint8
-	BroadcastAddress [4]uint8
-	NumberOfHost     uint64
+	NetworkAddress   string
+	BroadcastAddress string
+	Usable           string
 }
 
 type ResponsePayload struct {
 	Status           string
-	IP               [4]uint8
-	Subnet           [4]uint8
-	NetworkAddress   [4]uint8
-	BroadcastAddress [4]uint8
+	IP               string
+	Subnet           string
+	NetworkAddress   string
+	BroadcastAddress string
 	NumberOfHost     uint64
+	Usable           string
 	Possible         []PossibleIPStruct
 }
 
@@ -44,6 +46,17 @@ func ipStringToUint(ipString string) (ip [4]uint8) {
 	return
 }
 
+func ipArrayToString(ip [4]uint8) string {
+	var buffer bytes.Buffer
+	for i, v := range ip {
+		if i > 0 {
+			buffer.WriteString(".")
+		}
+		buffer.WriteString(strconv.Itoa(int(v)))
+	}
+	return buffer.String()
+}
+
 func networkAddress(ip [4]uint8, subnet [4]uint8) (addr [4]uint8) {
 	for i := range ip {
 		addr[i] = ip[i] & subnet[i]
@@ -58,12 +71,18 @@ func broadcastAddress(ip [4]uint8, subnet [4]uint8) (addr [4]uint8) {
 	return
 }
 
-func firstlastHost(network [4]uint8, broadcast [4]uint8) (first, last [4]uint8) {
-	first = network
-	last = broadcast
+func firstlastHost(network [4]uint8, broadcast [4]uint8) string {
+	first := network
+	last := broadcast
 	first[3]++
 	last[3]--
-	return
+	fStr := ipArrayToString(first)
+	lStr := ipArrayToString(last)
+	var buffer bytes.Buffer
+	buffer.WriteString(fStr)
+	buffer.WriteString(" - ")
+	buffer.WriteString(lStr)
+	return buffer.String()
 }
 
 func numberOfHostCalculate(subnet [4]uint8) (number uint64) {
@@ -76,14 +95,13 @@ func numberOfHostCalculate(subnet [4]uint8) (number uint64) {
 	return
 }
 
-func calc(ip [4]uint8, subnet [4]uint8) (network, broadcast [4]uint8, numberOfHost uint64) {
+func calc(ip [4]uint8, subnet [4]uint8) (network, broadcast [4]uint8) {
 	network = networkAddress(ip, subnet)
 	broadcast = broadcastAddress(ip, subnet)
-	numberOfHost = numberOfHostCalculate(subnet)
 	return
 }
 
-func possibleRange(ip [4]uint8, subnet [4]uint8) (everyRange []PossibleIPStruct) {
+func possibleRange(ip [4]uint8, subnet [4]uint8, numberOfHost uint64) (everyRange []PossibleIPStruct) {
 	var addr uint8
 	var inc uint16
 	possibleIP := ip
@@ -103,12 +121,16 @@ func possibleRange(ip [4]uint8, subnet [4]uint8) (everyRange []PossibleIPStruct)
 	}
 	numberOfPossible := 256 / uint16(inc)
 	for i := uint16(0); i < numberOfPossible; i++ {
-		possibleNetwork, possibleBroadcast, possibleNumberOfHost := calc(possibleIP, subnet)
+		possibleNetwork, possibleBroadcast := calc(possibleIP, subnet)
 		possibleIP[addr] += uint8(inc)
+		usable := "none"
+		if numberOfHost-2 > 0 {
+			usable = firstlastHost(possibleNetwork, possibleBroadcast)
+		}
 		everyRange = append(everyRange, PossibleIPStruct{
-			NetworkAddress:   possibleNetwork,
-			BroadcastAddress: possibleBroadcast,
-			NumberOfHost:     possibleNumberOfHost})
+			NetworkAddress:   ipArrayToString(possibleNetwork),
+			BroadcastAddress: ipArrayToString(possibleBroadcast),
+			Usable:           usable})
 	}
 	return
 }
@@ -119,18 +141,20 @@ func root(w http.ResponseWriter, r *http.Request) {
 
 	ipArray := ipStringToUint(ipString)
 	subnetArray := ipStringToUint(subnetString)
-	networkAddressArray := networkAddress(ipArray, subnetArray)
-	broadcastAddressArray := broadcastAddress(ipArray, subnetArray)
+	networkAddressArray, broadcastAddressArray := calc(ipArray, subnetArray)
 	numberOfHost := numberOfHostCalculate(subnetArray)
-	possible := possibleRange(ipArray, subnetArray)
+	possible := possibleRange(ipArray, subnetArray, numberOfHost)
 
 	var res ResponsePayload
 	res.Status = "OK"
-	res.IP = ipArray
-	res.Subnet = subnetArray
-	res.NetworkAddress = networkAddressArray
-	res.BroadcastAddress = broadcastAddressArray
+	res.IP = ipString
+	res.Subnet = subnetString
+	res.NetworkAddress = ipArrayToString(networkAddressArray)
+	res.BroadcastAddress = ipArrayToString(broadcastAddressArray)
 	res.NumberOfHost = numberOfHost
+	if res.Usable = "none"; numberOfHost-2 > 0 {
+		res.Usable = firstlastHost(networkAddressArray, broadcastAddressArray)
+	}
 	res.Possible = possible
 	jsonRes, _ := json.Marshal(res)
 	w.Header().Set("Content-Type", "application/json")
