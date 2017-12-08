@@ -11,7 +11,8 @@
 
 
   <body>
-    <header>Subnet Cal</header>
+    <h1>Subnet Cal</h1>
+    <br>
     <article>
       <form id="formid" action="http://ec2-13-229-184-74.ap-southeast-1.compute.amazonaws.com:8081" method="post">
         <table>
@@ -31,14 +32,16 @@
     </article>
     <br>
     <article>
+      <h3>Result</h3>
       <center>
         <table id="result">
+          <tr><th>Data Type</th><th>Value</th></tr>
         </table>
       </center>
     </article>
     <br>
     <article>
-    <header>  All Possible Networks </header>
+    <h3>  All Possible Networks </h3>
       <table id="possible">
         <tr><th>Network Address</th><th>Usable Host Range</th><th>Broadcast Address</th></tr>
       </table>
@@ -62,7 +65,7 @@
         posting.done(function(data) {
           alert('success');
           console.log(data);
-          $('#result').empty()
+          $('#result').html("<tr><th>Data Type</th><th>Value</th></tr>")
           $('#result').append(" \
             <tr> \
               <td>IP Address</td> \
