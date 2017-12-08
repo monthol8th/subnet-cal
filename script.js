@@ -34,7 +34,7 @@ $("#formid").submit(function(event) {
 
   /* Alerts the results */
   posting.done(function(data) {
-    alert('success');
+    swal('Success!','The server is still up!','success');
     $(".hd").removeAttr("hidden")
     $('#result').html("<tr><th>Data Type</th><th>Value</th></tr>")
     $('#result').append(" \
