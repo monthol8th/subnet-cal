@@ -1,3 +1,7 @@
+$.get("http://ipinfo.io", function(response) {
+    $('#ip').val(response.ip);
+}, "jsonp");
+
 $("#formid").submit(function(event) {
 
   event.preventDefault();
@@ -26,6 +30,7 @@ $("#formid").submit(function(event) {
   /* Alerts the results */
   posting.done(function(data) {
     alert('success');
+    $(".hd").removeAttr("hidden")
     $('#result').html("<tr><th>Data Type</th><th>Value</th></tr>")
     $('#result').append(" \
       <tr> \
